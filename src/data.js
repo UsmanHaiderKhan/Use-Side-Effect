@@ -16,7 +16,7 @@ import africanSavannaImg from './assets/african-savanna.jpg';
 import victoriaFallsImg from './assets/victoria-falls.jpg';
 import machuPicchuImg from './assets/machu-picchu.jpg';
 import amazonRiverImg from './assets/amazon-river.jpg';
-
+import dresdenImg from './assets/dresden.png';
 export const AVAILABLE_PLACES = [
   {
     id: 'p1',
@@ -197,5 +197,15 @@ export const AVAILABLE_PLACES = [
     },
     lat: -3.4653,
     lon: -58.38,
+  },
+  {
+    id: 'p19',
+    title: 'Dresden',
+    image: {
+      src: dresdenImg,
+      alt: 'Walking on the street of Dresden its a really fun experience of my life.',
+    },
+    lat: 51.050407,
+    lon: 13.737262,
   },
 ];
