@@ -115,7 +115,7 @@ header p {
 
 .place-item img {
   width: 100%;
-  height: 100%;
+  height: 175px;
   object-fit: cover;
   border-radius: 0.5rem;
 }
