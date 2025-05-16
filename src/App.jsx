@@ -1,15 +1,34 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Places from './components/Places.jsx';
 import { AVAILABLE_PLACES } from './data.js';
 import Modal from './components/Modal.jsx';
 import DeleteConfirmation from './components/DeleteConfirmation.jsx';
 import logoImg from './assets/logo.png';
+import { sortPlacesByDistance } from './loc.js';
+
+const storeIds = JSON.parse(localStorage.getItem('pickedPlaces')) || [];
+
+const storedPlaces = storeIds
+  .map((id) => AVAILABLE_PLACES.find((place) => place.id === id)) // returns place or undefined
+  .filter(Boolean);
 
 function App() {
+
+
   const modal = useRef();
   const selectedPlace = useRef();
-  const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [availablePlaces, setAvailablePlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
+
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const sortedPlaces = sortPlacesByDistance(AVAILABLE_PLACES, position.coords.latitude, position.coords.longitude);
+      setAvailablePlaces(sortedPlaces);
+    });
+  }, []);
+
 
   function handleStartRemovePlace(id) {
     modal.current.open();
@@ -28,13 +47,23 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+    const storeIds = JSON.parse(localStorage.getItem('pickedPlaces')) || [];
+    if (storeIds.indexOf(id) === -1) {
+      localStorage.setItem('pickedPlaces', JSON.stringify([id, ...storeIds]));
+    }
   }
 
   function handleRemovePlace() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
+    const storeIds = JSON.parse(localStorage.getItem('pickedPlaces')) || [];
+    const updatedIds = storeIds.filter((id) => id !== selectedPlace.current);
+    localStorage.setItem('pickedPlaces', JSON.stringify(updatedIds));
     modal.current.close();
+    // const storeIds = JSON.parse(localStorage.getItem('pickedPlaces')) || [];
+    // localStorage.setItem('pickedPlaces', JSON.stringify(storeIds.filter((place) => place.id !== selectedPlace.current)));
+
   }
 
   return (
@@ -63,7 +92,8 @@ function App() {
         />
         <Places
           title="Available Places"
-          places={AVAILABLE_PLACES}
+          places={availablePlaces}
+          fallbackText={'Sorting places by distance from your location. Please wait ...'}
           onSelectPlace={handleSelectPlace}
         />
       </main>
